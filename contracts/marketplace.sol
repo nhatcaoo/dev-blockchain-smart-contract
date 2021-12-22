@@ -11,7 +11,18 @@ contract Marketplace is ReentrancyGuard {
     event MarketItemCreated(
         uint256 marketItemId,
         uint256 tokenId,
-        uint256 price
+        uint256 price,
+        address seller
+    );
+    event MarketItemBought(
+        uint256 marketItemId,
+        uint256 tokenId,
+        address buyer
+    );
+    event MarketItemCanceled(
+        uint256 marketItemId,
+        uint256 tokenId,
+        address seller
     );
     struct MarketItem {
         address nftContract;
@@ -44,18 +55,56 @@ contract Marketplace is ReentrancyGuard {
             false
         );
         _itemIds.increment();
-        emit MarketItemCreated(itemId, _tokenId, _price);
+        emit MarketItemCreated(itemId, _tokenId, _price, msg.sender);
     }
+
+    function buyMarketItem(uint256 _itemId) public payable nonReentrant {
+        //uint256 tokenId = idToMarketItem[itemId].tokenId;
+        require(
+            msg.sender != idToMarketItem[_itemId].seller,
+            "asker must not be owner"
+        );
+
+        require(idToMarketItem[_itemId].isSold == false, "item has been sold");
+        require(!idToMarketItem[_itemId].isCanceled, "Item has been cancelled");
+        require(
+            idToMarketItem[_itemId].price == msg.value,
+            "Price must equal to token price"
+        );
+        idToMarketItem[_itemId].buyer = payable(msg.sender);
+        idToMarketItem[_itemId].isSold = true;
+        IERC721(idToMarketItem[_itemId].nftContract).transferFrom(
+            address(this),
+            msg.sender,
+            idToMarketItem[_itemId].tokenId
+        );
+        emit MarketItemBought(
+            _itemId,
+            idToMarketItem[_itemId].tokenId,
+            msg.sender
+        );
+    }
+
     function cancelMartketItem(uint256 _itemId) public {
         require(
             idToMarketItem[_itemId].seller == msg.sender,
-            'sender must be the seller'
+            "sender must be the seller"
         );
-        require(!idToMarketItem[_itemId].isCanceled, 'item has been cancelled');
+        require(!idToMarketItem[_itemId].isCanceled, "item has been cancelled");
         require(
             idToMarketItem[_itemId].buyer == address(0),
-            'item has been sold'
+            "item has been sold"
         );
         idToMarketItem[_itemId].isCanceled = true;
+        IERC721(idToMarketItem[_itemId].nftContract).transferFrom(
+            address(this),
+            msg.sender,
+            idToMarketItem[_itemId].tokenId
+        );
+        emit MarketItemCanceled(
+            _itemId,
+            idToMarketItem[_itemId].tokenId,
+            msg.sender
+        );
     }
 }
