@@ -107,4 +107,13 @@ contract Marketplace is ReentrancyGuard {
             msg.sender
         );
     }
+
+    function getMarketItems() public view returns (MarketItem[] memory) {
+        uint256 itemId = _itemIds.current();
+        MarketItem[] memory marketItems = new MarketItem[](itemId);
+        for (uint256 i = 0; i < itemId; i++) {
+            marketItems[i] = idToMarketItem[i];
+        }
+        return marketItems;
+    }
 }
