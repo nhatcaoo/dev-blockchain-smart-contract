@@ -78,6 +78,7 @@ contract Marketplace is ReentrancyGuard {
             msg.sender,
             idToMarketItem[_itemId].tokenId
         );
+        idToMarketItem[_itemId].seller.transfer(idToMarketItem[_itemId].price);
         emit MarketItemBought(
             _itemId,
             idToMarketItem[_itemId].tokenId,

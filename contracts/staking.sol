@@ -60,6 +60,7 @@ contract Staking is ReentrancyGuard {
                 )
             )
         );
+        payable(msg.sender).transfer(profit);
         stakesToStakeInfo[msg.sender][_itemId].isValid = false;
         emit StakeRelease(
             msg.sender,
