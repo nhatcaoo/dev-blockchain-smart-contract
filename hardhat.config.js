@@ -29,6 +29,17 @@ module.exports = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
+    testnet: {
+      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+      chainId: 97,
+      gasPrice: 20000000000,
+      accounts: ["b99cb646729956f9088a816a9dd09c0fc5ea11acf883228de11fc95fa2ac7d14"]
+    },
+  },
+  etherscan: {
+    // Your API key for Etherscan
+    // Obtain one at https://etherscan.io/
+    apiKey: "IZX9DWVHGC9CEQ2SJHP4AWHX4K2U52WGKH"
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
