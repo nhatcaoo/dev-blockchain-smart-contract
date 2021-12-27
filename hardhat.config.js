@@ -33,7 +33,7 @@ module.exports = {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
       chainId: 97,
       gasPrice: 20000000000,
-      accounts: ["b99cb646729956f9088a816a9dd09c0fc5ea11acf883228de11fc95fa2ac7d14"]
+      accounts: ["e888345be48217c9b2f6c1fb253f36b2944060281a0dda1b7d47369db3ae128c"]
     },
   },
   etherscan: {

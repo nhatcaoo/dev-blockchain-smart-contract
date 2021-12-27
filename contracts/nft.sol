@@ -9,6 +9,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract NFT is ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
+    Counters.Counter private _tokenSold;
     uint256 public listingPrice;
     event TokenDistributed(uint256 id, uint256 price);
     event TokenSold(uint256 id);
@@ -16,6 +17,7 @@ contract NFT is ERC721URIStorage, Ownable {
         uint256 price;
         bool isSold;
     }
+
     mapping(uint256 => TokenSellInfo) public idToInfo;
 
     constructor(uint256 _listingPrice) ERC721("My NFT", "MNT") {
@@ -42,12 +44,14 @@ contract NFT is ERC721URIStorage, Ownable {
         require(idToInfo[_id].isSold == false, "token was sold");
         _transfer(address(this), msg.sender, _id);
         idToInfo[_id].isSold = true;
+        _tokenSold.increment();
         emit TokenSold(_id);
     }
+
     function createToken(string calldata _tokenURI, uint256 _price)
         public
         payable
-    {   
+    {
         require(msg.value == listingPrice, "value must equal to listing price");
         uint256 tokenId = _tokenIds.current();
         _mint(address(this), tokenId);
@@ -55,5 +59,20 @@ contract NFT is ERC721URIStorage, Ownable {
         idToInfo[tokenId] = TokenSellInfo(_price, false);
         _tokenIds.increment();
         emit TokenDistributed(tokenId, _price);
+    }
+
+    function getTokensOnSell() public view returns (TokenSellInfo[] memory) {
+        uint256 tokenSold = _tokenSold.current();
+        uint256 total = _tokenIds.current();
+        uint256 remainToken = total - tokenSold;
+        TokenSellInfo[] memory tokens = new TokenSellInfo[](total);
+        uint256 currentPosition = 0;
+        for (uint256 i = 0; i < remainToken; i++) {
+            if (idToInfo[i].isSold == false) {
+                tokens[currentPosition] = idToInfo[i];
+                currentPosition++;
+            }
+        }
+        return tokens;
     }
 }
