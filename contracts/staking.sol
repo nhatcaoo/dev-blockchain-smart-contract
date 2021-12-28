@@ -19,6 +19,7 @@ contract Staking is ReentrancyGuard {
         uint256 totalProfit
     );
     struct StakeInfo {
+        uint256 itemId;
         uint256 tokenId;
         uint256 startBlock;
         bool isValid;
@@ -35,6 +36,7 @@ contract Staking is ReentrancyGuard {
         uint256 itemId = stakeHolderToStakeNum[msg.sender].current();
         IERC721(nftContract).transferFrom(msg.sender, address(this), _tokenId);
         stakesToStakeInfo[msg.sender][itemId] = StakeInfo(
+            itemId,
             _tokenId,
             block.number,
             true
@@ -49,8 +51,8 @@ contract Staking is ReentrancyGuard {
             "Invalid stake"
         );
         IERC721(nftContract).transferFrom(
-            msg.sender,
             address(this),
+            msg.sender,
             stakesToStakeInfo[msg.sender][_itemId].tokenId
         );
         uint256 profit = profitPerBlock.mul(
@@ -68,6 +70,8 @@ contract Staking is ReentrancyGuard {
             profit
         );
     }
+
+    receive() external payable {}
 
     function getMyStakeInfo() public view returns (StakeInfo[] memory) {
         uint256 itemId = stakeHolderToStakeNum[msg.sender].current();

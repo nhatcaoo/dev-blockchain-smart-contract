@@ -9,11 +9,11 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract NFT is ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
-    Counters.Counter private _tokenSold;
     uint256 public listingPrice;
     event TokenDistributed(uint256 id, uint256 price);
     event TokenSold(uint256 id);
     struct TokenSellInfo {
+        uint256 tokenId;
         uint256 price;
         bool isSold;
     }
@@ -31,7 +31,7 @@ contract NFT is ERC721URIStorage, Ownable {
         uint256 tokenId = _tokenIds.current();
         _mint(address(this), tokenId);
         _setTokenURI(tokenId, _tokenURI);
-        idToInfo[tokenId] = TokenSellInfo(_price, false);
+        idToInfo[tokenId] = TokenSellInfo(tokenId, _price, false);
         _tokenIds.increment();
         emit TokenDistributed(tokenId, _price);
     }
@@ -44,7 +44,6 @@ contract NFT is ERC721URIStorage, Ownable {
         require(idToInfo[_id].isSold == false, "token was sold");
         _transfer(address(this), msg.sender, _id);
         idToInfo[_id].isSold = true;
-        _tokenSold.increment();
         emit TokenSold(_id);
     }
 
@@ -56,22 +55,21 @@ contract NFT is ERC721URIStorage, Ownable {
         uint256 tokenId = _tokenIds.current();
         _mint(address(this), tokenId);
         _setTokenURI(tokenId, _tokenURI);
-        idToInfo[tokenId] = TokenSellInfo(_price, false);
+        idToInfo[tokenId] = TokenSellInfo(tokenId, _price, false);
         _tokenIds.increment();
         emit TokenDistributed(tokenId, _price);
     }
 
     function getTokensOnSell() public view returns (TokenSellInfo[] memory) {
-        uint256 tokenSold = _tokenSold.current();
         uint256 total = _tokenIds.current();
-        uint256 remainToken = total - tokenSold;
         TokenSellInfo[] memory tokens = new TokenSellInfo[](total);
         uint256 currentPosition = 0;
-        for (uint256 i = 0; i < remainToken; i++) {
-            if (idToInfo[i].isSold == false) {
-                tokens[currentPosition] = idToInfo[i];
+        for (uint256 i = 0; i < total; i++) {
+           
+                TokenSellInfo memory token = idToInfo[i];
+                tokens[currentPosition] = token;
                 currentPosition++;
-            }
+            
         }
         return tokens;
     }

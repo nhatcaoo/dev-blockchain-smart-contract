@@ -25,6 +25,7 @@ contract Marketplace is ReentrancyGuard {
         address seller
     );
     struct MarketItem {
+        uint256 itemId;
         address nftContract;
         uint256 tokenId;
         address payable seller;
@@ -46,6 +47,7 @@ contract Marketplace is ReentrancyGuard {
         uint256 itemId = _itemIds.current();
         IERC721(_nftContract).transferFrom(msg.sender, address(this), _tokenId);
         idToMarketItem[itemId] = MarketItem(
+            itemId,
             _nftContract,
             _tokenId,
             payable(msg.sender),
