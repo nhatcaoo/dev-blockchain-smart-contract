@@ -21,7 +21,7 @@ async function main() {
   const marketplace = await MarketPlace.deploy();
   await marketplace.deployed();
   const Staking = await hre.ethers.getContractFactory("Staking");
-  const staking = await Staking.deploy('0x1970c7cF311F22F9d90e15CdEaf2E6Fd0536CACC', hre.ethers.utils.parseUnits("0.00001", "ether"));
+  const staking = await Staking.deploy(nft.address, hre.ethers.utils.parseUnits("0.00001", "ether"));
   await staking.deployed();
   
   console.log("NFT deployed to:", nft.address);
